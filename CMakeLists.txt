@@ -1,7 +1,7 @@
 ########################################################
 # cmake file for building PandoraAnalysis
 # @author Jan Engels, DESY
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.2 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10 FATAL_ERROR)
 ########################################################
 
 
@@ -117,10 +117,12 @@ FOREACH( program ${PROGRAMS} )
 ENDFOREACH( program )
 
 # install calibration documentation
-ADD_CUSTOM_COMMAND( TARGET pdf POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    ${PROJECT_SOURCE_DIR}/build/doc/CalibrationPandoraAnalysisExplained.pdf
-    ${PROJECT_SOURCE_DIR}/doc/CalibrationPandoraAnalysisExplained.pdf )
+IF( TARGET pdf )
+    ADD_CUSTOM_COMMAND( TARGET pdf POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${PROJECT_BINARY_DIR}/doc/CalibrationPandoraAnalysisExplained.pdf
+        ${PROJECT_SOURCE_DIR}/doc/CalibrationPandoraAnalysisExplained.pdf )
+ENDIF()
 
 # display some variables and write them to cache
 DISPLAY_STD_VARIABLES()
