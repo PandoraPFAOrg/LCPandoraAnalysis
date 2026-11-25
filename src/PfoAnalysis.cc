@@ -535,7 +535,7 @@ void PfoAnalysis::MakeQuarkVariables(EVENT::LCEvent *pLCEvent)
     {
         const EVENT::LCCollection *pLCCollection = pLCEvent->getCollection(m_mcParticleCollection);
 
-        for (unsigned int i = 0, nElements = pLCCollection->getNumberOfElements(); i < nElements; ++i)
+        for (unsigned int i = 0, nElements = pLCCollection->getNumberOfElements(); i < std::min(int(nElements), 50); ++i)
         {
             const EVENT::MCParticle *pMCParticle = dynamic_cast<EVENT::MCParticle*>(pLCCollection->getElementAt(i));
 
@@ -568,6 +568,18 @@ void PfoAnalysis::MakeQuarkVariables(EVENT::LCEvent *pLCEvent)
                     mcQuarkVector.push_back(pMCParticle);
                 }
             }
+            else if (3 == m_lookForQuarksWithMotherZ)
+            {
+              // physics events where multiple steps of e+e- occur before the quarks
+              if ((pMCParticle->getParents().size()==2) && (absPdgCode >= 1) && (absPdgCode <= 6))
+              {
+                if (std::abs((pMCParticle->getParents())[0]->getPDG())==11 && std::abs((pMCParticle->getParents())[1]->getPDG())==11 )
+                {
+                  mcQuarkVector.push_back(pMCParticle);
+                  streamlog_out(DEBUG) << "MCParticle with PDG " << absPdgCode << " added to list" << std::endl;
+                }
+              }
+            }
         }
     }
     catch (...)
@@ -594,6 +606,8 @@ void PfoAnalysis::MakeQuarkVariables(EVENT::LCEvent *pLCEvent)
         }
 
         m_thrust = costTot / energyTot;
+        streamlog_out(DEBUG) << "pMCParticle size: " << mcQuarkVector.size() << std::endl;
+        streamlog_out(DEBUG) << "thrust: " << m_thrust << std::endl;
     }
 
     if (mcQuarkVector.size() == 2)
